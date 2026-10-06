@@ -79,7 +79,7 @@ function save(){try{localStorage.setItem('hh_orders',JSON.stringify(orders))}cat
 if(bc)bc.onmessage=()=>{load();draw()};
 addEventListener('storage',()=>{load();draw()});
 function go(v){view=v;draw()}
-const qrCustomerMode=()=>/t=\d+/.test(location.hash) || /fixed=1/.test(location.hash);
+const qrCustomerMode=()=>/#[?]?t=\d+/.test(location.hash);
 function applyAccess(){
   const qrMode=qrCustomerMode();
   if(qrMode) view='customer';
@@ -107,27 +107,11 @@ function draw(){
  document.getElementById('app').innerHTML=({customer,kitchen,register,qr})[view]();
  autoPrint();
  if(view=='qr')document.querySelectorAll('[data-q]').forEach(d=>renderQrCell(d, customerUrl(d.dataset.q)));
-  // If this is a fixed customer view, replace the top table selector with plain text
-  try{
-    if(document.documentElement.dataset.fixedCustomer==='1'){
-      const header = document.querySelector('#app .r > div');
-      if(header){
-        const sel = header.querySelector('select');
-        if(sel){
-          const txt = document.createElement('span');
-          txt.style.paddingLeft = '8px';
-          txt.style.color = 'var(--mut)';
-          txt.textContent = `(Table ${sel.value})`;
-          sel.replaceWith(txt);
-        }
-      }
-    }
-  }catch(e){}
 }
 const base=()=>location.href.split('#')[0];
 const customerUrl=(tableNo)=>{
-  const url = new URL('customer.html', window.location.href);
-  url.hash = `t=${tableNo}`;
+  const url = new URL(base(), window.location.href);
+  url.hash = `#t=${tableNo}`;
   return url.toString();
 };
 const total=o=>o.items.reduce((s,i)=>s+i.p*i.q,0);
@@ -200,27 +184,7 @@ function closeT(){load();const os=orders.filter(o=>o.table==sel&&!o.paid),sub=os
 let qbase='';
 function qr(){const b=qbase||base();return `<h2>Table QR Sheet (1–40)</h2><div class="c noprint" style="margin-bottom:10px"><div class="m">Page address customers will open (must be reachable from their phones)</div><input value="${b}" style="width:100%;box-sizing:border-box" onchange="qbase=this.value.trim();draw()">${/^file:/i.test(b)?'<p style="color:var(--warn)">⚠ file:// addresses only work on this PC. Host the page, then paste its public https address here.</p>':''}</div><p class="m noprint">Each QR code opens the Customer page for that table only. <button onclick="window.print()">Print</button></p><div class="g">${Array.from({length:40},(_,i)=>`<div class="c qr"><div data-q="${i+1}"></div><b>Table ${i+1}</b></div>`).join('')}</div>`}
 load();
-// If a table is present in the hash, treat this as a QR/customer access
-const m=location.hash.match(/t=(\d+)/);
-if(m){
-  table=Math.min(40,Math.max(1,+m[1]));
-  view='customer';
-  try{document.documentElement.dataset.fixedCustomer='1'}catch(e){}
-}
-applyAccess();
-window.addEventListener('hashchange',()=>{
-  const mm=location.hash.match(/t=(\d+)/);
-  if(mm){
-    table=Math.min(40,Math.max(1,+mm[1]));
-    view='customer';
-    try{document.documentElement.dataset.fixedCustomer='1'}catch(e){}
-  } else {
-    // clear fixed flag when hash no longer contains a table
-    try{delete document.documentElement.dataset.fixedCustomer}catch(e){}
-  }
-  applyAccess();
-  draw();
-});
+const m=location.hash.match(/t=(\d+)/);if(m){table=Math.min(40,Math.max(1,+m[1]));view='customer'}
 setInterval(()=>{if(view==='kitchen')draw();},1000);
 draw();
 </script></body></html>
