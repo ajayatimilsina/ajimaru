@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Customer</title>
+</head>
+<body>
+  <p>Redirecting to ordering page…</p>
+  <script>
+    // Accept either #t=NN or ?t=NN — redirect to index.html with the same table hash
+    (function(){
+      try{
+        const h = location.hash.match(/t=(\d+)/);
+        const s = new URLSearchParams(location.search);
+        const t = h ? h[1] : (s.get('t') || '1');
+        const dest = new URL('index.html', location.href);
+        dest.hash = 't=' + (Math.min(40, Math.max(1, Number(t))) || 1);
+        location.replace(dest.toString());
+      }catch(e){
+        location.replace('index.html');
+      }
+    })();
+  </script>
+</body>
+</html>

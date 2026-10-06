@@ -110,8 +110,8 @@ function draw(){
 }
 const base=()=>location.href.split('#')[0];
 const customerUrl=(tableNo)=>{
-  const url = new URL(base(), window.location.href);
-  url.hash = `#t=${tableNo}`;
+  const url = new URL('customer.html', window.location.href);
+  url.hash = `t=${tableNo}`;
   return url.toString();
 };
 const total=o=>o.items.reduce((s,i)=>s+i.p*i.q,0);
