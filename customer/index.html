@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Customer</title>
+</head>
+<body>
+  <p>Redirecting to ordering page…</p>
+  <script>
+    (function(){
+      try{
+        const h = location.hash.match(/t=(\d+)/);
+        const s = new URLSearchParams(location.search);
+        const t = h ? h[1] : (s.get('t') || '1');
+        const dest = new URL('/ajimaru/index.html', location.origin);
+        dest.hash = 't=' + (Math.min(40, Math.max(1, Number(t))) || 1);
+        location.replace(dest.toString());
+      }catch(e){
+        location.replace('/ajimaru/index.html');
+      }
+    })();
+  </script>
+</body>
+</html>
